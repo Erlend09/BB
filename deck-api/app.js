@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const abTestingMiddleware = require('./middleware/abTestingMiddleware'); // Importer A/B-testing middleware
+const abTestingMiddleware = require('../middleware/abTestingMiddleware');
+
 
 // Server statiske filer fra public mappen
 app.use(express.static(path.join(__dirname, 'public')));
