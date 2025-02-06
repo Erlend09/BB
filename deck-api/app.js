@@ -1,14 +1,18 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const abTestingMiddleware = require('./middleware/abTestingMiddleware'); // Importer A/B-testing middleware
 
-// Server statiske filer fra 'public' mappen
+// Server statiske filer fra public mappen
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Bruk A/B-testing, middleware
+app.use(abTestingMiddleware);
 
 // Eksempel på en rute for å hente et kort
 app.get('/temp/deck/:deck_id/card', (req, res) => {
     const deckId = req.params.deck_id;
-    
+
     // Eksempel på hvordan du kan simulere et "deck not found"-scenario
     const decks = {
         '5a9f1f2f3b7c8e163f74': {
@@ -19,7 +23,7 @@ app.get('/temp/deck/:deck_id/card', (req, res) => {
     };
 
     const card = decks[deckId];
-    
+
     if (!card) {
         // Returnerer 404 hvis kortstokken ikke finnes
         return res.status(404).json({ error: 'Deck not found' });
@@ -29,7 +33,16 @@ app.get('/temp/deck/:deck_id/card', (req, res) => {
     res.json({ card });
 });
 
-// Rute for å servere index.html
+// Rute for A/B-testet API-respons
+app.get('/api/response', (req, res) => {
+    if (req.abVariant === "A") {
+        res.json({ message: "Dette er responsen for variant A" });
+    } else {
+        res.json({ message: "Dette er responsen for variant B" });
+    }
+});
+
+// Rute for å "servere" index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -44,5 +57,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
