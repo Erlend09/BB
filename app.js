@@ -15,7 +15,7 @@ app.use(abTestingMiddleware);
 app.get('/temp/deck/:deck_id/card', (req, res) => {
     const deckId = req.params.deck_id;
 
-    // Eksempel på hvordan du kan simulere et "deck not found"-scenario
+    // Eksempel på hvordan man kan simulere et "deck not found"-scenario
     const decks = {
         '5a9f1f2f3b7c8e163f74': {
             value: 'Ace',
@@ -31,7 +31,7 @@ app.get('/temp/deck/:deck_id/card', (req, res) => {
         return res.status(404).json({ error: 'Deck not found' });
     }
 
-    // Hvis kortstokken finnes, send kortet som respons
+    // Hvis kortstokken finnes, send kortet som en respons
     res.json({ card });
 });
 
