@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const abTestingMiddleware = require('../middleware/abTestingMiddleware');
+const abTestingMiddleware = require('./middleware/abTestingMiddleware');
+
 
 
 // Server statiske filer fra public mappen
