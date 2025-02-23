@@ -1,15 +1,30 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const cors = require('cors');
 const abTestingMiddleware = require('./middleware/abTestingMiddleware');
 
+// Middleware for å håndtere JSON-data og CORS
+app.use(express.json());
+app.use(cors());
 
-
-// Server statiske filer fra public mappen
+// Server statiske filer fra public-mappen
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Bruk A/B-testing, middleware
 app.use(abTestingMiddleware);
+
+// Import API-ruter
+const userRoutes = require("./routes/users");
+const groupRoutes = require("./routes/groups");
+const channelRoutes = require("./routes/channels");
+const messageRoutes = require("./routes/messages");
+
+// Bruk API-rutene
+app.use("/api/users", userRoutes);
+app.use("/api/groups", groupRoutes);
+app.use("/api/channels", channelRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Eksempel på en rute for å hente et kort
 app.get('/temp/deck/:deck_id/card', (req, res) => {
@@ -55,7 +70,8 @@ app.use((req, res) => {
 });
 
 // Start serveren
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
