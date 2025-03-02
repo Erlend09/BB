@@ -8,6 +8,9 @@ const abTestingMiddleware = require('./middleware/abTestingMiddleware');
 app.use(express.json());
 app.use(cors());
 
+// Server alt i public som statiske filer
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Bruk A/B-testing, middleware
 app.use(abTestingMiddleware);
