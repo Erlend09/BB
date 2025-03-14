@@ -8,15 +8,14 @@ const abTestingMiddleware = require("./middleware/abTestingMiddleware");
 dotenv.config(); // Last inn miljøvariabler fra .env
 console.log("Connected to database:", process.env.DATABASE_URL);
 
-
 const app = express();
 
 // Middleware for å håndtere JSON-data og CORS
 app.use(express.json());
 app.use(cors());
 
-// Server alt i public som statiske filer
-app.use(express.static(path.join(__dirname, "public")));
+// Serverer statiske filer fra riktig mappe (Render-problemfikser)
+app.use(express.static(path.join(__dirname, "src", "public")));
 
 // Bruk A/B-testing middleware
 app.use(abTestingMiddleware);
@@ -33,40 +32,17 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/channels", channelRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Eksempel på en rute for å hente et kort
-app.get("/temp/deck/:deck_id/card", (req, res) => {
-    const deckId = req.params.deck_id;
-
-    // Eksempel på hvordan man kan simulere et "deck not found"-scenario
-    const decks = {
-        "5a9f1f2f3b7c8e163f74": {
-            value: "Ace",
-            suit: "Spades",
-            image: "/images/English_pattern_ace_of_spades.png",
-        },
-    };
-
-    const card = decks[deckId];
-
-    if (!card) {
-        return res.status(404).json({ error: "Deck not found" });
-    }
-
-    res.json({ card });
-});
-
-// Rute for A/B-testet API-respons
-app.get("/api/response", (req, res) => {
-    if (req.abVariant === "A") {
-        res.json({ message: "Dette er responsen for variant A" });
-    } else {
-        res.json({ message: "Dette er responsen for variant B" });
-    }
-});
-
-// Rute for å servere index.html
+// **Rute for å servere index.html korrekt**
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    res.sendFile(path.join(__dirname, "src", "public", "index.html"));
+});
+
+// Håndtering av statiske filer som ikke finnes
+app.use((req, res, next) => {
+    if (req.path.startsWith("/public/")) {
+        return res.status(404).send("Static file not found");
+    }
+    next();
 });
 
 // 404-feilhåndtering for udefinerte ruter
