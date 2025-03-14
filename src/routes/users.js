@@ -7,6 +7,10 @@ router.post("/", async (req, res) => {
     try {
         const { username, email } = req.body;
 
+        if (!username || !email) {
+            return res.status(400).json({ error: "Username and email are required" });
+        }
+
         // Sjekk om brukernavnet allerede eksisterer
         const userExists = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
         if (userExists.rows.length > 0) {
@@ -19,7 +23,7 @@ router.post("/", async (req, res) => {
         );
         res.status(201).json({ message: "User added successfully", user: result.rows[0] });
     } catch (err) {
-        console.error(err);
+        console.error("Error in POST /users:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
@@ -30,7 +34,7 @@ router.get("/", async (req, res) => {
         const result = await pool.query("SELECT * FROM users");
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        console.error("Error in GET /users:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
@@ -38,7 +42,12 @@ router.get("/", async (req, res) => {
 // READ single user
 router.get("/:id", async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
+
+        const result = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
@@ -46,7 +55,7 @@ router.get("/:id", async (req, res) => {
 
         res.json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        console.error("Error in GET /users/:id:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
@@ -54,21 +63,29 @@ router.get("/:id", async (req, res) => {
 // UPDATE user
 router.put("/:id", async (req, res) => {
     try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
+
         const { username, email } = req.body;
+        if (!username || !email) {
+            return res.status(400).json({ error: "Username and email are required" });
+        }
 
         // Sjekk om brukeren eksisterer
-        const userExists = await pool.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
+        const userExists = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
         if (userExists.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
         const result = await pool.query(
             "UPDATE users SET username = $1, email = $2 WHERE id = $3 RETURNING *",
-            [username, email, req.params.id]
+            [username, email, userId]
         );
         res.json({ message: "User updated successfully", user: result.rows[0] });
     } catch (err) {
-        console.error(err);
+        console.error("Error in PUT /users/:id:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
@@ -76,22 +93,23 @@ router.put("/:id", async (req, res) => {
 // DELETE user
 router.delete("/:id", async (req, res) => {
     try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
+
         // Sjekk om brukeren eksisterer før sletting
-        const userExists = await pool.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
+        const userExists = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
         if (userExists.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        await pool.query("DELETE FROM users WHERE id = $1", [req.params.id]);
+        await pool.query("DELETE FROM users WHERE id = $1", [userId]);
         res.json({ message: "User deleted successfully" });
     } catch (err) {
-        console.error(err);
+        console.error("Error in DELETE /users/:id:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
 
 module.exports = router;
-
-
-
-
