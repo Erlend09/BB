@@ -5,14 +5,14 @@ const pool = require("../db");
 // CREATE message
 router.post("/", async (req, res) => {
     try {
-        const { channelId, userId, content } = req.body;
+        const { channelId, userId, content } = req.body;  // Bruk userId i stedet for senderId
         const result = await pool.query(
-            "INSERT INTO messages (channel_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
-            [channelId, senderId, content]
+            "INSERT INTO messages (channel_id, user_id, content) VALUES ($1, $2, $3) RETURNING *",
+            [channelId, userId, content]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        console.error("Error creating message:", err);
         res.status(500).json({ error: "Server error" });
     }
 });
