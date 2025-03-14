@@ -54,3 +54,38 @@ Når du har oppdatert `README.md`, lagre filen og kjør følgende i terminalen:
 git add README.md
 git commit -m "Updated README with API documentation"
 git push origin main
+
+
+# Connect API - Discord-inspirert API
+
+Dette er et API inspirert av Discord, laget som en del av skoleoppgaven.  
+API-et lar deg håndtere **brukere, grupper, kanaler og meldinger** med **GET, POST, PUT og DELETE**.
+
+---
+
+##  API URL (Prod - Deployet på Render)
+API-et kjører live på:  
+[https://connect-api-i0ly.onrender.com](https://connect-api-i0ly.onrender.com)
+
+---
+
+## Hvordan bruke API-et
+Du kan teste API-et ved hjelp av **Postman**, **cURL** eller andre API-verktøy.
+
+---
+
+## 🔍 GET-endepunkter (Hente data)
+| Ressurs        | Endepunkt                     | Beskrivelse                          |
+|---------------|------------------------------|--------------------------------------|
+| **Brukere**   | `[GET] /api/users`            | Henter alle brukere                  |
+|               | `[GET] /api/users/:id`        | Henter en spesifikk bruker          |
+| **Grupper**   | `[GET] /api/groups`           | Henter alle grupper                 |
+|               | `[GET] /api/groups/:id`       | Henter en spesifikk gruppe          |
+| **Kanaler**   | `[GET] /api/channels`         | Henter alle kanaler                 |
+|               | `[GET] /api/channels/:id`     | Henter en spesifikk kanal           |
+| **Meldinger** | `[GET] /api/messages`         | Henter alle meldinger               |
+|               | `[GET] /api/messages/:id`     | Henter en spesifikk melding         |
+
+**📌 Eksempel: Hente alle grupper med cURL**
+```sh
+curl -X GET http://localhost:3000/api/groups
