@@ -74,7 +74,7 @@ Du kan teste API-et ved hjelp av **Postman**, **cURL** eller andre API-verktøy.
 
 ---
 
-## 🔍 GET-endepunkter (Hente data)
+## GET-endepunkter (Hente data)
 | Ressurs        | Endepunkt                     | Beskrivelse                          |
 |---------------|------------------------------|--------------------------------------|
 | **Brukere**   | `[GET] /api/users`            | Henter alle brukere                  |
@@ -86,6 +86,8 @@ Du kan teste API-et ved hjelp av **Postman**, **cURL** eller andre API-verktøy.
 | **Meldinger** | `[GET] /api/messages`         | Henter alle meldinger               |
 |               | `[GET] /api/messages/:id`     | Henter en spesifikk melding         |
 
-**📌 Eksempel: Hente alle grupper med cURL**
+**Eksempel: Hente alle grupper med cURL**
 ```sh
 curl -X GET http://localhost:3000/api/groups
+
+Render link: https://connect-api-i0ly.onrender.com/
