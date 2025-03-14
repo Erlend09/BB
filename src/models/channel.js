@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../../db");
 
 const Channel = {
     async create(name, groupId, type = "text") {
