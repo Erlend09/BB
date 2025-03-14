@@ -1,5 +1,30 @@
+# Node.js
 node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+.DS_Store
+
+# Miljøvariabler
 .env
+.env.local
+.env.development
+.env.production
+
+# Loggfiler
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build-filer (hvis du bygger frontend)
+dist/
+build/
+
+# Editor-filer (unngå søppel fra VS Code og Mac)
+.vscode/
+.idea/
+*.swp
+
 
