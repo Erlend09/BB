@@ -1,18 +1,24 @@
-const express = require('express');
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const pool = require("./db");
+const abTestingMiddleware = require("./middleware/abTestingMiddleware");
+
+dotenv.config(); // Last inn miljøvariabler fra .env
+console.log("Connected to database:", process.env.DATABASE_URL);
+
+
 const app = express();
-const path = require('path');
-const cors = require('cors');
-const abTestingMiddleware = require('./middleware/abTestingMiddleware');
 
 // Middleware for å håndtere JSON-data og CORS
 app.use(express.json());
 app.use(cors());
 
 // Server alt i public som statiske filer
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-
-// Bruk A/B-testing, middleware
+// Bruk A/B-testing middleware
 app.use(abTestingMiddleware);
 
 // Import API-ruter
@@ -28,31 +34,29 @@ app.use("/api/channels", channelRoutes);
 app.use("/api/messages", messageRoutes);
 
 // Eksempel på en rute for å hente et kort
-app.get('/temp/deck/:deck_id/card', (req, res) => {
+app.get("/temp/deck/:deck_id/card", (req, res) => {
     const deckId = req.params.deck_id;
 
     // Eksempel på hvordan man kan simulere et "deck not found"-scenario
     const decks = {
-        '5a9f1f2f3b7c8e163f74': {
-            value: 'Ace',
-            suit: 'Spades',
-            image: '/images/English_pattern_ace_of_spades.png'
-        }
+        "5a9f1f2f3b7c8e163f74": {
+            value: "Ace",
+            suit: "Spades",
+            image: "/images/English_pattern_ace_of_spades.png",
+        },
     };
 
     const card = decks[deckId];
 
     if (!card) {
-        // Returnerer 404 hvis kortstokken ikke finnes
-        return res.status(404).json({ error: 'Deck not found' });
+        return res.status(404).json({ error: "Deck not found" });
     }
 
-    // Hvis kortstokken finnes, send kortet som en respons
     res.json({ card });
 });
 
 // Rute for A/B-testet API-respons
-app.get('/api/response', (req, res) => {
+app.get("/api/response", (req, res) => {
     if (req.abVariant === "A") {
         res.json({ message: "Dette er responsen for variant A" });
     } else {
@@ -60,14 +64,25 @@ app.get('/api/response', (req, res) => {
     }
 });
 
-// Rute for å "servere" index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Rute for å servere index.html
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // 404-feilhåndtering for udefinerte ruter
 app.use((req, res) => {
-    res.status(404).json({ error: 'Resource not found' });
+    res.status(404).json({ error: "Resource not found" });
+});
+
+// **Database-test for å sjekke at tilkoblingen fungerer**
+app.get("/api/db-test", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT NOW()");
+        res.json({ message: "Database connection successful!", time: result.rows[0].now });
+    } catch (err) {
+        console.error("Database connection error:", err);
+        res.status(500).json({ error: "Database connection failed" });
+    }
 });
 
 // Start serveren
@@ -75,4 +90,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-

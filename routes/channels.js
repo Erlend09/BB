@@ -1,43 +1,47 @@
 const express = require("express");
 const router = express.Router();
-const Channel = require("../models/channel");
-
-let channels = [];
+const pool = require("../db");
 
 // CREATE channel
-router.post("/", (req, res) => {
-    const { id, name, groupId, type } = req.body;
-    const channel = new Channel(id, name, groupId, type);
-    channels.push(channel);
-    res.status(201).json(channel);
+router.post("/", async (req, res) => {
+    try {
+        const { name, groupId, type } = req.body;
+        const result = await pool.query(
+            "INSERT INTO channels (name, group_id, type) VALUES ($1, $2, $3) RETURNING *",
+            [name, groupId, type]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 // READ all channels
-router.get("/", (req, res) => {
-    res.json(channels);
+router.get("/", async (req, res) => {
+    const result = await pool.query("SELECT * FROM channels");
+    res.json(result.rows);
 });
 
 // READ single channel
-router.get("/:id", (req, res) => {
-    const channel = channels.find(c => c.id == req.params.id);
-    if (!channel) return res.status(404).json({ message: "Channel not found" });
-    res.json(channel);
+router.get("/:id", async (req, res) => {
+    const result = await pool.query("SELECT * FROM channels WHERE id = $1", [req.params.id]);
+    res.json(result.rows[0] || { error: "Channel not found" });
 });
 
 // UPDATE channel
-router.put("/:id", (req, res) => {
-    const channel = channels.find(c => c.id == req.params.id);
-    if (!channel) return res.status(404).json({ message: "Channel not found" });
-
+router.put("/:id", async (req, res) => {
     const { name, type } = req.body;
-    channel.name = name || channel.name;
-    channel.type = type || channel.type;
-    res.json(channel);
+    const result = await pool.query(
+        "UPDATE channels SET name = $1, type = $2 WHERE id = $3 RETURNING *",
+        [name, type, req.params.id]
+    );
+    res.json(result.rows[0] || { error: "Channel not found" });
 });
 
 // DELETE channel
-router.delete("/:id", (req, res) => {
-    channels = channels.filter(c => c.id != req.params.id);
+router.delete("/:id", async (req, res) => {
+    await pool.query("DELETE FROM channels WHERE id = $1", [req.params.id]);
     res.json({ message: "Channel deleted" });
 });
 

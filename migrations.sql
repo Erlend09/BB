@@ -1,0 +1,26 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE groups (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE channels (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE
+);
+
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    channel_id INTEGER REFERENCES channels(id) ON DELETE CASCADE,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

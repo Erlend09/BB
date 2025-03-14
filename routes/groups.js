@@ -1,42 +1,47 @@
 const express = require("express");
 const router = express.Router();
-const Group = require("../models/group");
-
-let groups = [];
+const pool = require("../db");
 
 // CREATE group
-router.post("/", (req, res) => {
-    const { id, name, ownerId } = req.body;
-    const group = new Group(id, name, ownerId);
-    groups.push(group);
-    res.status(201).json(group);
+router.post("/", async (req, res) => {
+    try {
+        const { name, ownerId } = req.body;
+        const result = await pool.query(
+            "INSERT INTO groups (name, owner_id) VALUES ($1, $2) RETURNING *",
+            [name, ownerId]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 // READ all groups
-router.get("/", (req, res) => {
-    res.json(groups);
+router.get("/", async (req, res) => {
+    const result = await pool.query("SELECT * FROM groups");
+    res.json(result.rows);
 });
 
 // READ single group
-router.get("/:id", (req, res) => {
-    const group = groups.find(g => g.id == req.params.id);
-    if (!group) return res.status(404).json({ message: "Group not found" });
-    res.json(group);
+router.get("/:id", async (req, res) => {
+    const result = await pool.query("SELECT * FROM groups WHERE id = $1", [req.params.id]);
+    res.json(result.rows[0] || { error: "Group not found" });
 });
 
 // UPDATE group
-router.put("/:id", (req, res) => {
-    const group = groups.find(g => g.id == req.params.id);
-    if (!group) return res.status(404).json({ message: "Group not found" });
-
+router.put("/:id", async (req, res) => {
     const { name } = req.body;
-    group.name = name || group.name;
-    res.json(group);
+    const result = await pool.query(
+        "UPDATE groups SET name = $1 WHERE id = $2 RETURNING *",
+        [name, req.params.id]
+    );
+    res.json(result.rows[0] || { error: "Group not found" });
 });
 
 // DELETE group
-router.delete("/:id", (req, res) => {
-    groups = groups.filter(g => g.id != req.params.id);
+router.delete("/:id", async (req, res) => {
+    await pool.query("DELETE FROM groups WHERE id = $1", [req.params.id]);
     res.json({ message: "Group deleted" });
 });
 
