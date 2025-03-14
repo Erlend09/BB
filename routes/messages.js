@@ -5,7 +5,7 @@ const pool = require("../db");
 // CREATE message
 router.post("/", async (req, res) => {
     try {
-        const { channelId, senderId, content } = req.body;
+        const { channelId, userId, content } = req.body;
         const result = await pool.query(
             "INSERT INTO messages (channel_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
             [channelId, senderId, content]

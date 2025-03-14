@@ -4,8 +4,8 @@ const Message = {
     async create(channelId, senderId, content) {
         try {
             const result = await pool.query(
-                "INSERT INTO messages (channel_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
-                [channelId, senderId, content]
+                "INSERT INTO messages (channel_id, user_id, content) VALUES ($1, $2, $3) RETURNING *",
+                [channelId, userId, content]
             );
             return result.rows[0];
         } catch (err) {
