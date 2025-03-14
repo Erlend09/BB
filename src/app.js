@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 // Serverer statiske filer fra riktig mappe (Render-problemfikser)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Bruk A/B-testing middleware
 app.use(abTestingMiddleware);
@@ -34,7 +34,7 @@ app.use("/api/messages", messageRoutes);
 
 // **Rute for å servere index.html korrekt**
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    res.sendFile(path.join(__dirname, "../public", "index.html"));
 });
 
 // Håndtering av statiske filer som ikke finnes
